@@ -1,0 +1,30 @@
+import streamlit as st
+from langgraph_backend import chatbot
+
+# st.session_state is basically a dict which stores prev state/chats in our case
+
+if 'message_history' not in st.session_state:
+    st.session_state['message_history'] = []
+
+# loading conversation history
+for message in st.session_state['message_history']:
+    with st.chat_message(message['role']):
+        st.text(message['content'])
+
+
+user_input = st.chat_input('Type Here')
+
+if user_input:
+
+    st.session_state['message_history'].append({'role':'user','content' : user_input})
+    with st.chat_message('user'): 
+        st.text(user_input)
+
+
+    # now import the chatbot from langgraph_backend
+    # use the chatbot to invoke based on the user_input
+    # see frontend_with_backend.py
+    
+    st.session_state['message_history'].append({'role':'assistant','content' : user_input})
+    with st.chat_message('assistant'): # copy cat chatbot
+        st.text(user_input)

@@ -22,7 +22,7 @@ if user_input:
 
 
     # now import the chatbot from langgraph_backend
-    # use the chatbot to invoke based on the user_input
+    # use the chatbot to invoke based on the user_inputs
     # see frontend_with_backend.py
     
     st.session_state['message_history'].append({'role':'assistant','content' : user_input})

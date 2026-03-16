@@ -22,12 +22,17 @@ def chat_node(state: ChatState):
 checkpointer = InMemorySaver()
 
 graph = StateGraph(ChatState)
+
+# add node
 graph.add_node("chat_node", chat_node)
+
+# add edges
 graph.add_edge(START, "chat_node")
 graph.add_edge("chat_node", END)
 
 chatbot = graph.compile(checkpointer=checkpointer)
 
+# implemented streaming feature
 for message_chunk, metadata in chatbot.stream(
     {'messages':[HumanMessage(content='What is the recipe to make chutt pasta')]},
     config = {'configurable':{'thread_id':'thread-1'}},

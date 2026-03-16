@@ -22,7 +22,11 @@ def chat_node(state: ChatState):
 checkpointer = InMemorySaver()
 
 graph = StateGraph(ChatState)
+
+# add node
 graph.add_node("chat_node", chat_node)
+
+# add edges
 graph.add_edge(START, "chat_node")
 graph.add_edge("chat_node", END)
 

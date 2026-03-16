@@ -35,3 +35,5 @@ if user_input:
     st.session_state['message_history'].append({'role':'assistant','content' : ai_message})
     with st.chat_message('assistant'): # copy cat chatbot
         st.text(ai_message)
+
+# combined both frontend and backend

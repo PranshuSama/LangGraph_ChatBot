@@ -1,5 +1,7 @@
 import streamlit as st
 
+# just a basic frontend
+
 with st.chat_message('user'):
     st.text('Hi')
 

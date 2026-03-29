@@ -4,6 +4,26 @@ from langgraph_tool_backend import chatbot
 from langchain_core.messages import HumanMessage
 import uuid
 
+
+def _extract_text_from_chunk_content(content):
+    """Normalize LangChain chunk content into plain text for smooth streaming."""
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            if isinstance(item, dict) and item.get("type") == "text":
+                text = item.get("text", "")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "".join(parts)
+
+    return ""
+
 # **************************************** utility functions *************************
 
 def generate_thread_id():
@@ -95,14 +115,29 @@ if user_input:
     # first add the message to message_history
     with st.chat_message("assistant"):
         def ai_only_stream():
+            previous_text = ""
             for message_chunk, metadata in chatbot.stream(
                 {"messages": [HumanMessage(content=user_input)]},
                 config=CONFIG,
                 stream_mode="messages"
             ):
-                if isinstance(message_chunk, AIMessage):
-                    # yield only assistant tokens
-                    yield message_chunk.content
+                if metadata.get("langgraph_node") != "chat_node":
+                    continue
+
+                current_text = _extract_text_from_chunk_content(getattr(message_chunk, "content", ""))
+                if not current_text:
+                    continue
+
+                # Some providers emit cumulative text; stream only the new delta.
+                if current_text.startswith(previous_text):
+                    delta = current_text[len(previous_text):]
+                    previous_text = current_text
+                else:
+                    delta = current_text
+                    previous_text += current_text
+
+                if delta:
+                    yield delta
 
         ai_message = st.write_stream(ai_only_stream())
 

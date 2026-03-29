@@ -6,7 +6,8 @@ import uuid
 # **************************************** utility functions *************************
 
 def generate_thread_id():
-    thread_id = uuid.uuid4()
+    # Store thread IDs as strings for stable serialization in LangGraph config.
+    thread_id = str(uuid.uuid4())
     return thread_id
 
 def reset_chat():
@@ -20,7 +21,7 @@ def add_thread(thread_id):
         st.session_state['chat_threads'].append(thread_id)
 
 def load_conversation(thread_id):
-    state = chatbot.get_state(config={'configurable': {'thread_id': thread_id}})
+    state = chatbot.get_state(config={'configurable': {'thread_id': str(thread_id)}})
     # Check if messages key exists in state values, return empty list if not
     return state.values.get('messages', [])
 
@@ -80,9 +81,17 @@ if user_input:
     with st.chat_message('user'):
         st.text(user_input)
 
-    CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}}
+    # CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}}
 
-     # first add the message to message_history
+    CONFIG = {
+        "configurable": {"thread_id": str(st.session_state["thread_id"])},
+        "metadata": {
+            "thread_id" : str(st.session_state["thread_id"])
+        },
+        "run_name" : "chat_turn",
+    }
+
+    # first add the message to message_history
     with st.chat_message("assistant"):
         def ai_only_stream():
             for message_chunk, metadata in chatbot.stream(

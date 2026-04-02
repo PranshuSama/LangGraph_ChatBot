@@ -12,6 +12,9 @@ jsonpatch==1.33
 jsonpointer==3.0.0
 langchain-core==1.2.19
 langchain-groq==1.0.2
+sentence-transformers==5.1.2
+pypdf==6.9.2
+faiss-cpu==1.13.2
 langchain-openai==1.1.11
 fastmcp
 langgraph==1.1.2

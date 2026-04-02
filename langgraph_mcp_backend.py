@@ -118,7 +118,13 @@ class ChatState(TypedDict):
 async def chat_node(state: ChatState):
     """LLM node that may answer or request a tool call."""
     messages = state["messages"]
-    response = await llm_with_tools.ainvoke(messages)
+    try:
+        response = await llm_with_tools.ainvoke(messages)
+    except Exception as exc:
+        error_text = str(exc)
+        if "Failed to call a function" not in error_text and "failed_generation" not in error_text:
+            raise
+        response = await llm.ainvoke(messages)
     return {"messages": [response]}
 
 
